@@ -179,8 +179,8 @@ function saveCredentials() {
 
 // Reset Credentials
 function resetCredentials() {
-    document.getElementById('clientKeyInput').value = 'aw768493021tt';
-    document.getElementById('clientSecretInput').value = 'sec_9843a890fe12480392bc19a0082';
+    document.getElementById('clientKeyInput').value = 'awactvtk37ks2oiv';
+    document.getElementById('clientSecretInput').value = 'vmfLRXYUNaI45HuimCocJDs0nhpgWBmS';
     document.getElementById('redirectUriInput').value = 'https://turbotok.app/oauth/callback';
     showToast('Credentials reset to defaults', 'info');
 }
@@ -302,7 +302,7 @@ function handleFileSelected(e) {
 
 // API Scope Builder
 function updateGeneratedScopeUrl() {
-    const clientKey = document.getElementById('clientKeyInput')?.value || 'aw768493021tt';
+    const clientKey = document.getElementById('clientKeyInput')?.value || 'awactvtk37ks2oiv';
     const redirectUri = encodeURIComponent(document.getElementById('redirectUriInput')?.value || 'https://turbotok.app/oauth/callback');
 
     const selectedScopes = [];
