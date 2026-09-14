@@ -1,0 +1,21 @@
+{
+  "name": "turbotok",
+  "version": "1.0.0",
+  "description": "TurboTok - TikTok Developer Control Center & API Management Dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "node --test \"test/**/*.test.js\"",
+    "serve": "http-server . -p 8080 -c-1"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

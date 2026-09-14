@@ -66,6 +66,20 @@ http://localhost:8080/
 
 ---
 
+## 🧪 Development
+
+```bash
+npm install        # install dev toolchain (ESLint, http-server)
+npm run lint       # lint app.js
+npm test           # run the smoke test suite
+npm run serve      # serve the site at http://localhost:8080
+```
+
+Claude Code on the web installs this toolchain automatically via
+`.claude/hooks/session-start.sh`.
+
+---
+
 ## 📂 Project Structure
 
 ```text
