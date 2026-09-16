@@ -76,7 +76,11 @@ The root `*.png` files (icons, watermark) are unreferenced source art.
 ## Credentials
 
 TikTok `Client Key` / `Client Secret` belong in the UI's credentials store
-(`localStorage` keys `turbotok_client_*`) — never in source. Note the existing
-violation: `resetCredentials()` in `app.js` hardcodes a client key and secret as
-"defaults". Do not copy that pattern, do not add more, and treat those committed
-values as compromised.
+(`localStorage` keys `turbotok_client_*`) — never in source. `app.js` ships no
+credential defaults: `resetCredentials()` clears both fields and their stored
+values, and only `DEFAULT_REDIRECT_URI` (a public callback URL) is defaulted.
+Keep it that way.
+
+A client key and secret were previously hardcoded in `resetCredentials()` and
+are still reachable in git history — those values are compromised and must be
+rotated in the TikTok developer console.

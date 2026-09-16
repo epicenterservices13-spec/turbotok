@@ -1,5 +1,10 @@
 // TurboTok Application Logic & TikTok API Control Center
 
+// Default OAuth redirect URI. Client Key / Secret are deliberately not
+// defaulted here - they belong in the credentials store (localStorage) and
+// are supplied by the user.
+const DEFAULT_REDIRECT_URI = 'https://turbotok.app/oauth/callback';
+
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize Lucide Icons
     if (window.lucide) {
@@ -179,10 +184,15 @@ function saveCredentials() {
 
 // Reset Credentials
 function resetCredentials() {
-    document.getElementById('clientKeyInput').value = 'awactvtk37ks2oiv';
-    document.getElementById('clientSecretInput').value = 'vmfLRXYUNaI45HuimCocJDs0nhpgWBmS';
-    document.getElementById('redirectUriInput').value = 'https://turbotok.app/oauth/callback';
-    showToast('Credentials reset to defaults', 'info');
+    document.getElementById('clientKeyInput').value = '';
+    document.getElementById('clientSecretInput').value = '';
+    document.getElementById('redirectUriInput').value = DEFAULT_REDIRECT_URI;
+
+    localStorage.removeItem('turbotok_client_key');
+    localStorage.removeItem('turbotok_client_secret');
+    localStorage.removeItem('turbotok_redirect_uri');
+
+    showToast('Credentials cleared - enter your own Client Key and Secret', 'info');
 }
 
 // Test Redirect URI
@@ -302,8 +312,8 @@ function handleFileSelected(e) {
 
 // API Scope Builder
 function updateGeneratedScopeUrl() {
-    const clientKey = document.getElementById('clientKeyInput')?.value || 'awactvtk37ks2oiv';
-    const redirectUri = encodeURIComponent(document.getElementById('redirectUriInput')?.value || 'https://turbotok.app/oauth/callback');
+    const clientKey = document.getElementById('clientKeyInput')?.value || 'YOUR_CLIENT_KEY';
+    const redirectUri = encodeURIComponent(document.getElementById('redirectUriInput')?.value || DEFAULT_REDIRECT_URI);
 
     const selectedScopes = [];
     document.querySelectorAll('.scope-checkbox:checked').forEach(cb => {
