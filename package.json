@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "node --test \"test/**/*.test.js\"",
+    "test": "node --test",
     "serve": "http-server . -p 8080 -c-1"
   },
   "devDependencies": {
