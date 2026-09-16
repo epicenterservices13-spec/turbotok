@@ -25,6 +25,12 @@ node --test --test-name-pattern 'mount point'  # one test by name
 Node >= 20. `package.json` sets `"type": "module"`, which covers `test/` and
 `eslint.config.js` — the only JavaScript sources left in the repo.
 
+The `test` script is the bare `node --test`, which recursively discovers
+`*.test.js` (and skips `node_modules`). Keep it glob-free: `--test` did not
+accept glob patterns until after Node 20, and CI pins Node 20 to match
+`engines`, so `node --test "test/**/*.test.js"` fails there. A directory
+argument does not work either — `node --test test` resolves it as a module.
+
 ## Architecture
 
 The deployed site is **one file**: `index.html` (~820 KB, 37 lines). It is a
