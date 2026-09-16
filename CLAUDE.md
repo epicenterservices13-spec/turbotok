@@ -67,9 +67,11 @@ truncated, unmounted, or half-copied export, not a broken OAuth flow.
 
 ## CI
 
-`.github/workflows/ci.yml` runs on every push and pull request: `npm ci`,
-`npm run lint`, `npm test`, then `cmp index.html turbotok-site.html`. Keep the
-tree green — these are the only automated checks the project has.
+`.github/workflows/ci.yml` runs `npm ci`, `npm run lint`, `npm test`, then
+`cmp index.html turbotok-site.html`. It triggers on every pull request and on
+pushes to `main` — a push to a PR branch is already covered by the
+`pull_request` trigger, so `push` is not wired to every branch. Keep the tree
+green: these are the only automated checks the project has.
 
 ## Credentials
 
