@@ -70,13 +70,14 @@ http://localhost:8080/
 
 ```bash
 npm install        # install dev toolchain (ESLint, http-server)
-npm run lint       # lint app.js
+npm run lint       # lint the JavaScript sources
 npm test           # run the smoke test suite
 npm run serve      # serve the site at http://localhost:8080
 ```
 
 Claude Code on the web installs this toolchain automatically via
-`.claude/hooks/session-start.sh`.
+`.claude/hooks/session-start.sh`. The same checks run in CI on every push and
+pull request.
 
 ---
 
@@ -84,16 +85,14 @@ Claude Code on the web installs this toolchain automatically via
 
 ```text
 turbotok/
-├── index.html        # Single Page Control Center Interface
-├── styles.css        # TikTok Glassmorphism Dark Theme Design System
-├── app.js            # Interactive Application Logic & OAuth Engine
-├── assets/
-│   ├── logo.jpg      # TurboTok Glowing Neon Branding Icon
-│   ├── thumb1.jpg    # Vertical Short Video Preview #1
-│   └── thumb2.jpg    # Vertical Live Stream Preview #2
+├── index.html           # The deployed site: one self-contained bundle
+│                        # (markup, styles, scripts and images all inlined)
+├── turbotok-site.html   # Byte-identical copy of index.html
+├── test/smoke.test.js   # Structural checks on the bundle
+├── .github/workflows/   # CI: lint, tests, bundle-copy check
 ├── .agents/
 │   └── skills/
 │       └── turbotok/
 │           └── SKILL.md # AGY Custom Skill Workflow Guide
-└── README.md         # Master Documentation
+└── README.md            # Master Documentation
 ```
