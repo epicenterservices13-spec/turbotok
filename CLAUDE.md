@@ -82,5 +82,6 @@ values, and only `DEFAULT_REDIRECT_URI` (a public callback URL) is defaulted.
 Keep it that way.
 
 A client key and secret were previously hardcoded in `resetCredentials()` and
-are still reachable in git history — those values are compromised and must be
-rotated in the TikTok developer console.
+remain reachable in git history (commit `f0c40d3`). They have since been rotated
+in the TikTok developer console, so those strings are dead — leave them in
+history and never re-add the live replacements to source.
