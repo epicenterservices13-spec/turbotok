@@ -6,30 +6,42 @@ TurboTok is an enterprise-grade control center for TikTok API v2 integration, us
 
 ## ⚡ Quick Start
 
-### 1. Launch Local Web Server
-```bash
-python3 -m http.server 8080 --directory /data/data/com.termux/files/home/downloads/turbotok
-```
-Or using Node.js:
-```bash
-npx http-server ./turbotok -p 8080
-```
+### 1. Create a TikTok app
+Real OAuth and API calls need a real app in the
+[TikTok for Developers](https://developers.tiktok.com/) portal, with its
+`Client Key` / `Client Secret` and a registered Redirect URI.
 
-### 2. Access the Application
-Open your browser and navigate to:
-```text
-http://localhost:8080/
+### 2. Launch the app + backend together
+```bash
+npm install
+npm run server
 ```
+This serves `app.html` (the control center UI) **and** the `/api/*` routes
+the OAuth flow and API console need, on `http://localhost:8787/`. Register
+that URL as the app's Redirect URI in the TikTok developer portal (or
+whatever URL you actually deploy this to).
+
+Static-only hosting (`npm run serve`, `http://localhost:8080/`) still works
+for browsing the UI, but OAuth/API calls will fail — there's no backend to
+proxy them, and TikTok's own API and OAuth endpoints don't accept direct
+calls from browser JS (see `CLAUDE.md` for why).
+
+### 3. Connect your account
+Open the **Credentials** tab, paste in your Client Key/Secret and Redirect
+URI, save, then **Connect TikTok** from the header. No real credentials yet?
+The login modal's "Use Instant Sandbox Simulation instead" issues
+fake-but-well-formed tokens so you can exercise the rest of the UI without
+one.
 
 ---
 
 ## 🌟 Key Features & Capabilities
 
 ### 1. TikTok OAuth 2.0 Management
-* **Credentials Store**: Manage `Client Key` and `Client Secret` with local encryption storage.
+* **Credentials Store**: `Client Key` and `Client Secret` live in this browser's `localStorage` — plain, not encrypted, so only use this on a device/browser profile you trust.
 * **Dual Authorization Flow**:
-  * **Instant Test Sandbox**: Simulates OAuth code exchange, generating valid test `Access Tokens`, `Refresh Tokens`, and `OpenID`.
-  * **Official TikTok OAuth Redirect**: Launches `https://www.tiktok.com/v2/auth/authorize/` populated with your application credentials and requested scopes.
+  * **Instant Test Sandbox**: Skips TikTok entirely and generates fake-but-well-formed test `Access Tokens`, `Refresh Tokens`, and `OpenID` locally, for exercising the UI without a real TikTok app.
+  * **Official TikTok OAuth Redirect**: Sends you to the real `https://www.tiktok.com/v2/auth/authorize/`, and once you approve it, completes a real code-for-token exchange through the bundled backend (`npm run server`) — see "Backend" below.
 
 ### 2. Direct Post Video Publisher
 * **Caption & Hashtags Editor**: Dynamic input supporting tags, emojis, and captions.
@@ -66,13 +78,32 @@ http://localhost:8080/
 
 ---
 
+## 🔌 Backend
+
+`server/server.mjs` is a small, dependency-free Node server
+(`node:http` only) with two jobs:
+
+1. Serve `app.html`, `app.js`, `styles.css` and `assets/` as static files.
+2. Proxy the calls that can't be made directly from browser JS:
+   TikTok's `oauth/token`/`oauth/revoke` endpoints send no CORS headers (and
+   the `client_secret` shouldn't reach the browser anyway), and the rest of
+   the TikTok Open API has the same CORS restriction. It never stores a
+   secret itself — every request carries the credentials the browser already
+   has in `localStorage`, and forwards to TikTok's real production or
+   sandbox host depending on the environment toggle in the sidebar.
+
+Run it with `npm run server`; see `CLAUDE.md` for its exact routes.
+
+---
+
 ## 🧪 Development
 
 ```bash
 npm install        # install dev toolchain (ESLint, http-server)
-npm run lint       # lint app.js
-npm test           # run the smoke test suite
-npm run serve      # serve the site at http://localhost:8080
+npm run lint       # lint app.js and server/**/*.mjs
+npm test           # run the test suite (app.js/app.html wiring, backend routing, index.html smoke checks)
+npm run serve      # static-only file server at http://localhost:8080 (no /api/*)
+npm run server     # app.html + backend together at http://localhost:8787
 ```
 
 Claude Code on the web installs this toolchain automatically via
@@ -84,13 +115,18 @@ Claude Code on the web installs this toolchain automatically via
 
 ```text
 turbotok/
-├── index.html        # Single Page Control Center Interface
-├── styles.css        # TikTok Glassmorphism Dark Theme Design System
-├── app.js            # Interactive Application Logic & OAuth Engine
+├── index.html          # Deployed bundle (build output - don't hand-edit)
+├── turbotok-site.html  # Byte-identical copy of index.html
+├── app.html            # Control center markup - loads app.js + styles.css
+├── styles.css          # TikTok Glassmorphism Dark Theme Design System
+├── app.js              # Interactive Application Logic & OAuth Engine
+├── server/
+│   └── server.mjs      # Static file server + TikTok OAuth/API proxy
 ├── assets/
-│   ├── logo.jpg      # TurboTok Glowing Neon Branding Icon
-│   ├── thumb1.jpg    # Vertical Short Video Preview #1
-│   └── thumb2.jpg    # Vertical Live Stream Preview #2
+│   ├── logo.jpg       # TurboTok Glowing Neon Branding Icon
+│   ├── thumb1.jpg     # Vertical Short Video Preview #1
+│   └── thumb2.jpg     # Vertical Live Stream Preview #2
+├── test/                # node:test suite (app.js/app.html wiring, server, index.html smoke)
 ├── .agents/
 │   └── skills/
 │       └── turbotok/
