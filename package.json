@@ -8,7 +8,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "node --test \"test/**/*.test.js\"",
-    "serve": "http-server . -p 8080 -c-1"
+    "serve": "http-server . -p 8080 -c-1",
+    "server": "node server/server.mjs"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

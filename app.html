@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TurboTok Control Center</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="TurboTok - TikTok API v2 Developer Control Center">
+<link rel="icon" href="turbotok_icon_final.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="brand-header">
+      <img src="assets/logo.jpg" alt="TurboTok" class="brand-logo">
+      <div class="brand-info">
+        <span class="brand-name">TurboTok</span>
+        <span class="brand-badge"><i data-lucide="zap"></i> API Control Center</span>
+      </div>
+    </div>
+
+    <div class="env-selector">
+      <span class="env-label">Environment</span>
+      <div class="toggle-pill-group">
+        <button id="envProductionBtn" class="env-btn" onclick="switchEnv('production')" type="button">
+          <span class="dot live"></span> Production
+        </button>
+        <button id="envSandboxBtn" class="env-btn active" onclick="switchEnv('sandbox')" type="button">
+          <span class="dot test"></span> Sandbox
+        </button>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <a href="#overview" class="nav-item active" onclick="switchTab('overview', this); return false;"><i data-lucide="layout-dashboard"></i> Overview</a>
+      <a href="#credentials" class="nav-item" onclick="switchTab('credentials', this); return false;"><i data-lucide="key-round"></i> Credentials &amp; OAuth</a>
+      <a href="#publisher" class="nav-item" onclick="switchTab('publisher', this); return false;"><i data-lucide="upload-cloud"></i> Video Publisher</a>
+      <a href="#scopes" class="nav-item" onclick="switchTab('scopes', this); return false;"><i data-lucide="shield-check"></i> Scope Manager</a>
+      <a href="#sandbox" class="nav-item" onclick="switchTab('sandbox', this); return false;"><i data-lucide="terminal"></i> API Console</a>
+      <a href="#webhooks" class="nav-item" onclick="switchTab('webhooks', this); return false;"><i data-lucide="webhook"></i> Webhooks</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="api-status-card">
+        <div class="status-header"><span class="pulse-indicator online"></span> API Online</div>
+        <div class="rate-limit-bar"><div class="rate-fill" style="width: 42%"></div></div>
+        <div class="rate-text">420 / 1000 requests today</div>
+      </div>
+      <div class="user-profile">
+        <div class="avatar-initials">TT</div>
+        <div class="user-meta">
+          <span class="user-name">Dev Workspace</span>
+          <span class="user-role">Owner</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="top-header">
+      <div class="header-title">
+        <h1 id="pageTitle">Dashboard Overview</h1>
+        <p id="pageSubtitle" class="subtitle">Real-time performance metrics and API connection status for TurboTok.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="switchTab('sandbox', null)" type="button"><i data-lucide="terminal"></i> Open Console</button>
+        <button class="btn btn-primary" onclick="triggerTikTokLogin()" type="button"><i data-lucide="link"></i> Connect TikTok</button>
+      </div>
+    </header>
+
+    <!-- Overview -->
+    <section id="tab-overview" class="tab-content active">
+      <div class="metrics-grid">
+        <div class="glass-card metric-card">
+          <div class="metric-icon cyan"><i data-lucide="activity"></i></div>
+          <div class="metric-data">
+            <span class="metric-label">API Requests Today</span>
+            <span class="metric-value">4,832</span>
+            <span class="metric-trend positive"><i data-lucide="trending-up"></i> 12.4%</span>
+          </div>
+        </div>
+        <div class="glass-card metric-card">
+          <div class="metric-icon pink"><i data-lucide="video"></i></div>
+          <div class="metric-data">
+            <span class="metric-label">Videos Published</span>
+            <span class="metric-value">312</span>
+            <span class="metric-trend positive"><i data-lucide="trending-up"></i> 6.1%</span>
+          </div>
+        </div>
+        <div class="glass-card metric-card">
+          <div class="metric-icon purple"><i data-lucide="users"></i></div>
+          <div class="metric-data">
+            <span class="metric-label">Authorized Users</span>
+            <span class="metric-value">1,205</span>
+            <span class="metric-trend neutral"><i data-lucide="minus"></i> 0.0%</span>
+          </div>
+        </div>
+        <div class="glass-card metric-card">
+          <div class="metric-icon yellow"><i data-lucide="webhook"></i></div>
+          <div class="metric-data">
+            <span class="metric-label">Webhook Deliveries</span>
+            <span class="metric-value">98.7%</span>
+            <span class="metric-trend positive"><i data-lucide="trending-up"></i> 0.3%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-charts-grid">
+        <div class="glass-card flex-2">
+          <div class="card-header">
+            <h3><i data-lucide="line-chart"></i> Traffic (24h)</h3>
+            <select class="select-pill"><option>Last 24 hours</option></select>
+          </div>
+          <div class="chart-container"><canvas id="trafficChart"></canvas></div>
+        </div>
+        <div class="glass-card flex-1">
+          <div class="card-header"><h3><i data-lucide="pie-chart"></i> Endpoint Mix</h3></div>
+          <div class="chart-container"><canvas id="endpointChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="section-header mt-6">
+        <h2><i data-lucide="film"></i> Recent Videos</h2>
+        <button class="btn-link" type="button" onclick="switchTab('publisher', null)">View publisher</button>
+      </div>
+      <div class="video-grid">
+        <div class="glass-card video-card">
+          <div class="thumbnail-wrapper">
+            <img src="assets/thumb1.jpg" class="video-thumb" alt="Cyber Neon Street Dance">
+            <span class="badge status-published">Published</span>
+            <div class="play-overlay"><i data-lucide="play"></i></div>
+            <span class="duration-tag">00:24</span>
+          </div>
+          <div class="video-details">
+            <h4>Cyber Neon Street Dance #FutureStyle</h4>
+            <div class="video-stats">
+              <span><i data-lucide="heart"></i> 128K</span>
+              <span><i data-lucide="message-circle"></i> 892</span>
+              <span><i data-lucide="share"></i> 2.1K</span>
+            </div>
+            <div class="video-meta-footer">
+              <span>Publish ID: v_pub_9f2ac1</span>
+              <span>Posted 2 hours ago</span>
+            </div>
+          </div>
+        </div>
+        <div class="glass-card video-card">
+          <div class="thumbnail-wrapper">
+            <img src="assets/thumb2.jpg" class="video-thumb" alt="Live rooftop session">
+            <span class="badge status-live"><i data-lucide="radio"></i> Live</span>
+            <div class="play-overlay"><i data-lucide="play"></i></div>
+            <span class="duration-tag">LIVE</span>
+          </div>
+          <div class="video-details">
+            <h4>Rooftop Creator Live Session</h4>
+            <div class="video-stats">
+              <span><i data-lucide="heart"></i> 54K</span>
+              <span><i data-lucide="message-circle"></i> 3.4K</span>
+              <span><i data-lucide="share"></i> 610</span>
+            </div>
+            <div class="video-meta-footer">
+              <span>Publish ID: v_pub_77bd40</span>
+              <span>Started 18 minutes ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Credentials & OAuth -->
+    <section id="tab-credentials" class="tab-content">
+      <div class="glass-card">
+        <div class="card-header">
+          <div>
+            <h3><i data-lucide="key-round"></i> App Credentials</h3>
+            <p>From your app in the TikTok for Developers portal. Stored only in this browser's local storage.</p>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="clientKeyInput">Client Key</label>
+            <div class="input-with-action">
+              <input id="clientKeyInput" class="form-control code-font" type="text" placeholder="e.g. aw5xxxxxxxxxxxxxxxx" autocomplete="off">
+              <button class="btn btn-ghost icon-only" type="button" onclick="copyInput('clientKeyInput')"><i data-lucide="copy"></i></button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="clientSecretInput">Client Secret</label>
+            <div class="input-with-action">
+              <input id="clientSecretInput" class="form-control code-font" type="password" placeholder="Client secret" autocomplete="off">
+              <button class="btn btn-ghost icon-only" type="button" onclick="togglePasswordVisibility('clientSecretInput', this)"><i data-lucide="eye"></i></button>
+            </div>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label for="redirectUriInput">Redirect URI</label>
+            <div class="input-with-action">
+              <input id="redirectUriInput" class="form-control code-font" type="text" placeholder="Must exactly match a Redirect URI registered on your TikTok app">
+              <button class="btn btn-secondary" type="button" onclick="testRedirectUri()">Test</button>
+            </div>
+          </div>
+        </div>
+        <div class="header-actions mt-4">
+          <button class="btn btn-primary" type="button" onclick="saveCredentials()"><i data-lucide="save"></i> Save Credentials</button>
+          <button class="btn btn-ghost" type="button" onclick="resetCredentials()"><i data-lucide="rotate-ccw"></i> Clear</button>
+        </div>
+      </div>
+
+      <div class="glass-card mt-6">
+        <div class="card-header"><h3><i data-lucide="shield"></i> OAuth 2.0 Session</h3></div>
+        <div class="oauth-status-box" id="oauthStatusBox">
+          <div class="token-display-grid">
+            <div class="token-item"><label>Access Token</label><code id="accessTokenDisplay">None</code></div>
+            <div class="token-item"><label>Refresh Token</label><code id="refreshTokenDisplay">None</code></div>
+            <div class="token-item"><label>Open ID</label><code id="openIdDisplay">None</code></div>
+          </div>
+          <div class="header-actions mt-4">
+            <button class="btn btn-secondary btn-sm" type="button" onclick="refreshToken()"><i data-lucide="refresh-cw"></i> Refresh Token</button>
+            <button class="btn btn-ghost btn-sm" type="button" onclick="clearTokenData()"><i data-lucide="trash-2"></i> Clear Session</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Video Publisher -->
+    <section id="tab-publisher" class="tab-content">
+      <div class="publisher-layout">
+        <form class="glass-card flex-2" id="publishForm" onsubmit="handlePublishSubmit(event)">
+          <div class="card-header"><h3><i data-lucide="upload-cloud"></i> Direct Post</h3></div>
+
+          <div class="form-group">
+            <label for="videoTitle">Caption</label>
+            <textarea id="videoTitle" class="form-control" rows="3" placeholder="Cyber Neon Street Dance #FutureStyle #TurboTok"></textarea>
+          </div>
+
+          <div class="form-group mt-4">
+            <label for="videoFileInput">Video File</label>
+            <label class="file-drop-zone" for="videoFileInput">
+              <i data-lucide="film" class="drop-icon"></i>
+              <p>Click to choose an MP4 to publish via Direct Post</p>
+              <input type="file" id="videoFileInput" accept="video/mp4" style="display:none" onchange="handleFileSelected(event)">
+            </label>
+          </div>
+
+          <div class="header-actions mt-6">
+            <button type="submit" id="publishSubmitBtn" class="btn btn-primary btn-lg"><i data-lucide="send"></i> Publish to TikTok</button>
+            <button type="button" class="btn btn-secondary" onclick="saveDraft()"><i data-lucide="save"></i> Save Draft</button>
+          </div>
+        </form>
+
+        <div class="glass-card flex-1">
+          <div class="card-header"><h3><i data-lucide="smartphone"></i> Live Preview</h3></div>
+          <div class="phone-mockup">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <img src="assets/thumb1.jpg" class="phone-bg" alt="Feed preview">
+              <div class="tiktok-ui-overlay">
+                <div class="tiktok-sidebar-actions">
+                  <div class="action-btn"><i data-lucide="heart"></i> 0</div>
+                  <div class="action-btn"><i data-lucide="message-circle"></i> 0</div>
+                  <div class="action-btn"><i data-lucide="share"></i> 0</div>
+                </div>
+                <div class="tiktok-bottom-caption">
+                  <div class="creator-handle">@turbotok_dev <span class="follow-btn">Follow</span></div>
+                  <p class="caption-text" id="liveCaptionPreview">Cyber Neon Street Dance #FutureStyle #TurboTok</p>
+                  <div class="sound-track"><i data-lucide="music"></i> Original Sound - TurboTok</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scope Manager -->
+    <section id="tab-scopes" class="tab-content">
+      <div class="glass-card">
+        <div class="card-header"><h3><i data-lucide="shield-check"></i> Permission Scopes</h3></div>
+        <div class="scopes-grid">
+          <label class="glass-card scope-card active">
+            <input type="checkbox" class="scope-checkbox" value="user.info.basic" checked onchange="updateGeneratedScopeUrl()">
+            <div class="scope-info">
+              <span class="scope-name">user.info.basic</span>
+              <span class="scope-badge">Read</span>
+              <p class="subtitle">Avatar, display name, and basic profile fields.</p>
+            </div>
+          </label>
+          <label class="glass-card scope-card">
+            <input type="checkbox" class="scope-checkbox" value="user.info.stats" onchange="updateGeneratedScopeUrl()">
+            <div class="scope-info">
+              <span class="scope-name">user.info.stats</span>
+              <span class="scope-badge">Read</span>
+              <p class="subtitle">Follower, following, and likes counts.</p>
+            </div>
+          </label>
+          <label class="glass-card scope-card">
+            <input type="checkbox" class="scope-checkbox" value="video.list" onchange="updateGeneratedScopeUrl()">
+            <div class="scope-info">
+              <span class="scope-name">video.list</span>
+              <span class="scope-badge">Read</span>
+              <p class="subtitle">List a user's public videos.</p>
+            </div>
+          </label>
+          <label class="glass-card scope-card">
+            <input type="checkbox" class="scope-checkbox" value="video.upload" onchange="updateGeneratedScopeUrl()">
+            <div class="scope-info">
+              <span class="scope-name">video.upload</span>
+              <span class="scope-badge">Write</span>
+              <p class="subtitle">Upload videos to a user's account as drafts.</p>
+            </div>
+          </label>
+          <label class="glass-card scope-card">
+            <input type="checkbox" class="scope-checkbox" value="video.publish" onchange="updateGeneratedScopeUrl()">
+            <div class="scope-info">
+              <span class="scope-name">video.publish</span>
+              <span class="scope-badge">Write</span>
+              <p class="subtitle">Directly publish videos to a user's feed.</p>
+            </div>
+          </label>
+          <label class="glass-card scope-card">
+            <input type="checkbox" class="scope-checkbox" value="research.data" onchange="updateGeneratedScopeUrl()">
+            <div class="scope-info">
+              <span class="scope-name">research.data</span>
+              <span class="scope-badge">Read</span>
+              <p class="subtitle">Academic Research API data access.</p>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="glass-card mt-6">
+        <div class="card-header"><h3><i data-lucide="link"></i> Generated Authorization URL</h3></div>
+        <div class="code-box-wrapper">
+          <div class="code-box-header">
+            <span>GET https://www.tiktok.com/v2/auth/authorize/</span>
+            <button class="btn-link" type="button" onclick="copyInput('generatedAuthUrlText')"><i data-lucide="copy"></i> Copy</button>
+          </div>
+          <div class="code-block" id="generatedAuthUrlText"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Console -->
+    <section id="tab-sandbox" class="tab-content">
+      <div class="api-console-layout">
+        <div class="glass-card flex-2">
+          <div class="card-header"><h3><i data-lucide="terminal"></i> Request Builder</h3></div>
+          <div class="input-with-action">
+            <select id="apiMethodSelect" class="form-control select-method">
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+            </select>
+            <input id="apiEndpointInput" class="form-control code-font" type="text" value="/v2/user/info/?fields=open_id,display_name">
+            <button class="btn btn-primary" type="button" onclick="executeApiRequest()"><i data-lucide="play"></i> Send</button>
+          </div>
+          <div class="header-actions mt-4">
+            <span class="status-tag" id="responseStatusTag">Idle</span>
+          </div>
+          <div class="code-box-wrapper mt-4">
+            <div class="code-box-header"><span>Response</span></div>
+            <pre class="code-block" id="apiResponseJson">// Connect your TikTok account, then send a request.</pre>
+          </div>
+        </div>
+        <div class="glass-card flex-1">
+          <div class="card-header"><h3><i data-lucide="book-open"></i> Common Endpoints</h3></div>
+          <ul class="auth-scope-list">
+            <li><i data-lucide="user"></i> GET /v2/user/info/</li>
+            <li><i data-lucide="list"></i> GET /v2/video/list/</li>
+            <li><i data-lucide="upload"></i> POST /v2/post/publish/video/init/</li>
+            <li><i data-lucide="refresh-cw"></i> POST /v2/oauth/token/</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Webhooks -->
+    <section id="tab-webhooks" class="tab-content">
+      <div class="glass-card">
+        <div class="card-header"><h3><i data-lucide="webhook"></i> Webhook Endpoint</h3></div>
+        <div class="input-with-action">
+          <input id="webhookUrlInput" class="form-control code-font" type="text" placeholder="https://yourapp.com/webhooks/tiktok">
+          <button class="btn btn-primary" type="button" onclick="saveWebhookUrl()">Save</button>
+        </div>
+      </div>
+
+      <div class="glass-card mt-6">
+        <div class="section-header">
+          <h2><i data-lucide="activity"></i> Event Log</h2>
+          <button class="btn btn-secondary btn-sm" type="button" onclick="simulateWebhookEvent()"><i data-lucide="zap"></i> Simulate Event</button>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr><th>Event</th><th>Status</th><th>Event ID</th><th>Time</th><th></th></tr>
+            </thead>
+            <tbody id="webhookLogsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- TikTok Login Modal -->
+<div class="modal-overlay" id="tiktokLoginModal" onclick="handleModalBackdropClick(event)">
+  <div class="modal-card">
+    <img src="assets/logo.jpg" class="auth-app-logo" alt="TurboTok">
+    <h3>Authorize TurboTok</h3>
+    <p class="subtitle">This continues to TikTok, where you sign in and approve the scopes you selected.</p>
+    <ul class="auth-scope-list">
+      <li><i data-lucide="check-circle" class="text-cyan"></i> Access is scoped to what you selected in Scope Manager</li>
+      <li><i data-lucide="check-circle" class="text-cyan"></i> You can revoke access at any time</li>
+    </ul>
+    <div class="header-actions mt-4">
+      <button class="btn btn-secondary w-full" type="button" onclick="closeTikTokModal()">Cancel</button>
+      <button class="btn btn-tiktok w-full" type="button" onclick="redirectToTikTokOAuth()"><i data-lucide="external-link"></i> Continue to TikTok</button>
+    </div>
+    <button class="btn btn-ghost w-full mt-4" type="button" onclick="confirmOAuthAuthorization()">Use Instant Sandbox Simulation instead</button>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="app.js"></script>
+</body>
+</html>
